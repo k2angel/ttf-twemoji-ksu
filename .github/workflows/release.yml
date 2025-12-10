@@ -32,7 +32,7 @@ jobs:
         if: env.UPDATE == 'true'
         uses: robinraju/release-downloader@v1
         with:
-          repo: JoeBlakeB/ttf-twemoji-aur
+          repository: JoeBlakeB/ttf-twemoji-aur
           tag: ${{ env.VERSION }}
           fileName: 'Twemoji-${{ env.VERSION }}.ttf'
           out-file-path: 'system/fonts'
