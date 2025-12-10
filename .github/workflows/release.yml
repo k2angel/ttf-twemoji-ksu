@@ -1,0 +1,72 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: get versions
+        run: |
+          VERSION=$(gh release view --repo JoeBlakeB/ttf-twemoji-aur --json tagName --jq .tagName)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
+          echo "PREVIOUS_VERSION=$PREVIOUS_VERSION" >> $GITHUB_ENV
+      - name: check version bump
+        run: |
+          if [[ '${{ env.VERSION }}' > ${{ env.PREVIOUS_VERSION }} ]]; then
+            echo 'new version found: ${{ env.VERSION }} > ${{ env.PREVIOUS_VERSION }}'
+            echo 'UPDATE=true' >> $GITHUB_ENV
+          else
+            echo 'no new version found: ${{ env.VERSION }} <= ${{ env.PREVIOUS_VERSION }}'
+            echo 'UPDATE=false' >> $GITHUB_ENV
+          fi
+      - name: download release assets
+        if: env.UPDATE == 'true'
+        uses: robinraju/release-downloader@v1
+        with:
+          repo: JoeBlakeB/ttf-twemoji-aur
+          tag: ${{ env.VERSION }}
+          fileName: 'Twemoji-${{ env.VERSION }}.ttf'
+          out-file-path: 'system/fonts'
+      - name: rename font file
+        if: env.UPDATE == 'true'
+        run: |
+          mv 'system/fonts/Twemoji-${{ env.VERSION }}.ttf' 'system/fonts/NotoColorEmoji.ttf'
+      - name: bump module.prop and update.json
+        if: env.UPDATE == 'true'
+        run: |
+          VERSION_NAME=v${{ env.VERSION }}
+          VERSION_CODE=$(echo ${{ env.VERSION }} | tr -d '.')
+          sed -i "s/^version=.*/version=$VERSION_NAME/" module.prop
+          sed -i "s/^versionCode=.*/versionCode=$VERSION_CODE/" module.prop
+          jq --arg ver "$VERSION_NAME" \
+             --arg verCode "$VERSION_CODE" \
+             '.version = $ver | .versionCode = ($verCode | tonumber)' update.json > update.json.tmp && mv update.json.tmp update.json
+      - name: create artifact
+        if: env.UPDATE == 'true'
+        run: |
+          zip -r ttf-twemoji-ksu.zip system module.prop
+      - name: commit module.prop and update.json
+        if: env.UPDATE == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'module.prop update.json'
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'Bump to ${{ env.VERSION }}'
+      - name: upload artifact to release
+        if: env.UPDATE == 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ttf-twemoji-ksu.zip
+          asset_name: ttf-twemoji-ksu.zip
+          tag: ${{ env.VERSION }}
+          overwrite: true
+          release_name: ttf-twemoji-ksu ${{ env.VERSION }}
