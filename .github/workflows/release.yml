@@ -41,7 +41,7 @@ jobs:
           tag: ${{ env.VERSION }}
           fileName: 'Twemoji-${{ env.VERSION }}.ttf'
           out-file-path: 'system/fonts'
-      - name: bump module.prop and update.json
+      - name: bump module.prop, update.json and changelog.txt
         if: env.UPDATE == 'true'
         run: |
           VERSION_NAME=v${{ env.VERSION }}
@@ -51,6 +51,7 @@ jobs:
           jq --arg ver "$VERSION_NAME" \
              --arg verCode "$VERSION_CODE" \
              '.version = $ver | .versionCode = ($verCode | tonumber)' update.json > update.json.tmp && mv update.json.tmp update.json
+          echo 'Bump to ${{ env.VERSION }}' > changelog.txt
       - name: create artifact
         if: env.UPDATE == 'true'
         run: |
