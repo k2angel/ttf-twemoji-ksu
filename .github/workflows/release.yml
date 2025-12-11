@@ -57,11 +57,11 @@ jobs:
         run: |
           mv 'system/fonts/Twemoji-${{ env.VERSION }}.ttf' 'system/fonts/NotoColorEmoji.ttf'
           zip -r ttf-twemoji-ksu.zip system module.prop
-      - name: commit module.prop and update.json
+      - name: commit module.prop, update.json and changelog.txt
         if: env.UPDATE == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'module.prop update.json'
+          add: 'module.prop update.json changelog.txt'
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'Bump to ${{ env.VERSION }}'
