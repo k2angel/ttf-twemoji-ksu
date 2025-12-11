@@ -41,7 +41,7 @@ jobs:
           tag: ${{ env.VERSION }}
           fileName: 'Twemoji-${{ env.VERSION }}.ttf'
           out-file-path: 'system/fonts'
-      - name: bump module.prop, update.json and changelog.txt
+      - name: bump
         if: env.UPDATE == 'true'
         run: |
           VERSION_NAME=v${{ env.VERSION }}
@@ -57,7 +57,7 @@ jobs:
         run: |
           mv 'system/fonts/Twemoji-${{ env.VERSION }}.ttf' 'system/fonts/NotoColorEmoji.ttf'
           zip -r ttf-twemoji-ksu.zip system module.prop
-      - name: commit module.prop, update.json and changelog.txt
+      - name: commit
         if: env.UPDATE == 'true'
         uses: EndBug/add-and-commit@v9
         with:
