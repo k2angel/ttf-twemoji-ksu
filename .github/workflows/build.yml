@@ -1,4 +1,4 @@
-name: release
+name: Build module
 
 on:
   schedule:
@@ -12,36 +12,36 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: get versions
+      - name: Get versions
         run: |
-          VERSION=$(gh release view --repo JoeBlakeB/ttf-twemoji-aur --json tagName --jq .tagName)
+          VERSION=$(gh release view --repo JoeBlakeB/ttf-twemoji --json tagName --jq .tagName)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
           echo "PREVIOUS_VERSION=$PREVIOUS_VERSION" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: check version bump
+      - name: Check version bump
         run: |
-          if [[ '${{ env.VERSION }}' > ${{ env.PREVIOUS_VERSION }} ]]; then
+          if [[ ${{ env.VERSION }} > ${{ env.PREVIOUS_VERSION }} ]]; then
             echo 'new version found: ${{ env.VERSION }} > ${{ env.PREVIOUS_VERSION }}'
             echo 'UPDATE=true' >> $GITHUB_ENV
           else
             echo 'no new version found: ${{ env.VERSION }} <= ${{ env.PREVIOUS_VERSION }}'
             echo 'UPDATE=false' >> $GITHUB_ENV
           fi
-      - name: download release assets
+      - name: Download release assets
         if: env.UPDATE == 'true'
         uses: robinraju/release-downloader@v1
         with:
-          repository: JoeBlakeB/ttf-twemoji-aur
+          repository: JoeBlakeB/ttf-twemoji
           tag: ${{ env.VERSION }}
           fileName: 'Twemoji-${{ env.VERSION }}.ttf'
           out-file-path: 'system/fonts'
-      - name: bump
+      - name: Bump
         if: env.UPDATE == 'true'
         run: |
           VERSION_NAME=v${{ env.VERSION }}
@@ -52,12 +52,12 @@ jobs:
              --arg verCode "$VERSION_CODE" \
              '.version = $ver | .versionCode = ($verCode | tonumber)' update.json > update.json.tmp && mv update.json.tmp update.json
           echo 'Bump to ${{ env.VERSION }}' > changelog.txt
-      - name: create artifact
+      - name: Create artifact
         if: env.UPDATE == 'true'
         run: |
           mv 'system/fonts/Twemoji-${{ env.VERSION }}.ttf' 'system/fonts/NotoColorEmoji.ttf'
           zip -r ttf-twemoji-ksu.zip system module.prop
-      - name: commit
+      - name: Commit
         if: env.UPDATE == 'true'
         uses: EndBug/add-and-commit@v9
         with:
@@ -65,7 +65,7 @@ jobs:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'Bump to ${{ env.VERSION }}'
-      - name: upload artifact to release
+      - name: Upload artifact to release
         if: env.UPDATE == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
