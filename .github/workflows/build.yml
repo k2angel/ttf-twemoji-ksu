@@ -1,8 +1,8 @@
 name: Build module
 
 on:
-#   schedule:
-#     - cron: '0 0 * * *'
+  #   schedule:
+  #     - cron: '0 0 * * *'
   workflow_dispatch:
 
 permissions:
@@ -39,16 +39,15 @@ jobs:
         with:
           repository: JoeBlakeB/ttf-twemoji
           tag: ${{ env.VERSION }}
-          fileName: 'Twemoji-${{ env.VERSION }}.ttf'
-          out-file-path: 'system/fonts'
+          fileName: "Twemoji-${{ env.VERSION }}.ttf"
+          out-file-path: "system/fonts"
       - name: Bump
         if: env.UPDATE == 'true'
         run: |
-          VERSION_NAME=v${{ env.VERSION }}
           VERSION_CODE=$(echo ${{ env.VERSION }} | tr -d '.')
-          sed -i "s/^version=.*/version=$VERSION_NAME/" module.prop
+          sed -i "s/^version=.*/version=${{ env.VERSION }}/" module.prop
           sed -i "s/^versionCode=.*/versionCode=$VERSION_CODE/" module.prop
-          jq --arg ver "$VERSION_NAME" \
+          jq --arg ver "${{ env.VERSION }}" \
              --arg verCode "$VERSION_CODE" \
              '.version = $ver | .versionCode = ($verCode | tonumber)' update.json > update.json.tmp && mv update.json.tmp update.json
           echo 'Bump to ${{ env.VERSION }}' > changelog.txt
@@ -61,10 +60,10 @@ jobs:
         if: env.UPDATE == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'module.prop update.json changelog.txt'
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: 'Bump to ${{ env.VERSION }}'
+          add: "module.prop update.json changelog.txt"
+          author_name: "github-actions[bot]"
+          author_email: "github-actions[bot]@users.noreply.github.com"
+          message: "Bump to ${{ env.VERSION }}"
       - name: Upload artifact to release
         if: env.UPDATE == 'true'
         uses: svenstaro/upload-release-action@v2
