@@ -50,11 +50,12 @@ jobs:
           out-file-path: "system/fonts"
       - name: Bump
         run: |
-          VERSION_CODE=$(echo ${{ needs.check_version.outputs.version }} | tr -d '.')
+          version_code=$(echo ${{ needs.check_version.outputs.version }} | tr -d '.')
+
           sed -i "s/^version=.*/version=${{ needs.check_version.outputs.version }}/" module.prop
-          sed -i "s/^versionCode=.*/versionCode=$VERSION_CODE/" module.prop
+          sed -i "s/^versionCode=.*/versionCode=$version_code/" module.prop
           jq --arg ver "${{ needs.check_version.outputs.version }}" \
-             --arg verCode "$VERSION_CODE" \
+             --arg verCode "$version_code" \
              '.version = $ver | .versionCode = ($verCode | tonumber)' update.json > update.json.tmp && mv update.json.tmp update.json
           echo 'Bump to ${{ needs.check_version.outputs.version }}' > changelog.txt
       - name: Create artifact
