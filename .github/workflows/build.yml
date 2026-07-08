@@ -20,15 +20,15 @@ jobs:
           version=$(gh release view --repo JoeBlakeB/ttf-twemoji --json tagName --jq .tagName)
           previous_version=$(gh release view --repo k2angel/ttf-twemoji-ksu --json tagName --jq .tagName)
 
-          if [[ "$version" > "$previous_version" ]]; then
-            echo "new version found: ${version} > ${previous_version}"
+          if [[ $version > $previous_version ]]; then
+            echo "new version found: $version > $previous_version"
             echo "update=true" >> $GITHUB_OUTPUT
           else
-            echo "no new version found: ${version} <= ${previous_version}"
+            echo "no new version found: $version <= $previous_version"
             echo "update=false" >> $GITHUB_OUTPUT
           fi
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          echo "previous_version=${previous_version}" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "previous_version=$previous_version" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
