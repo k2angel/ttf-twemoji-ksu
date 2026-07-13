@@ -1,7 +1,7 @@
 id=ttf-twemoji
 name=Twemoji
-version=v17.0.2
-versionCode=1702
+version=17.0.3
+versionCode=1703
 author=k2angel
 updateJson=https://raw.githubusercontent.com/k2angel/ttf-twemoji-ksu/master/update.json
 description=Twemoji for KernelSU! 😲🙌👾🤖🤸👺🌠🤲👻🖐️🛸😀
