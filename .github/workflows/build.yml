@@ -54,12 +54,10 @@ jobs:
           author_email: "github-actions[bot]@users.noreply.github.com"
           message: "Bump to ${{ env.VERSION }}"
 
-      - name: Upload artifact to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Release
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ttf-twemoji-ksu.zip
-          asset_name: ttf-twemoji-ksu.zip
-          tag: ${{ env.VERSION }}
-          overwrite: true
-          release_name: ttf-twemoji-ksu ${{ env.VERSION }}
+          files: ttf-twemoji-ksu.zip
+          overwrite_files: true
+          name: ttf-twemoji-ksu ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
